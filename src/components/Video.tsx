@@ -15,7 +15,7 @@ export function Video() {
       <div className="p-8 max-w-[1100px] mx-auto">
         <div className="flex items-start gap-16">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold">Aula 0 - Inalgural</h1>
+            <h1 className="text-2xl font-bold">Aula 1 - Inalgural</h1>
             <p className="mt-4 text-gray-200 leading-relaxed">
               Lorem ipsum dolor sit, amet consectetur adipisicing elit.
               Recusandae, in ipsum iure sequi praesentium ullam culpa fugit
