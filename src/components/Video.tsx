@@ -1,4 +1,4 @@
-import { DefaultUi, Player, Video } from "@vime/react";
+import { DefaultUi, Player, Video, Youtube } from "@vime/react";
 import {
   CaretRight,
   DiscordLogo,
@@ -7,19 +7,60 @@ import {
 } from "phosphor-react";
 
 import "@vime/core/themes/default.css";
+import { gql, useQuery } from "@apollo/client";
 
-export function VideoPlayer() {
+const GET_LESSON_BY_SLUG_QUERY = gql`
+  query GetLessonBySlug($slug: String) {
+    lesson(where: { slug: $slug }) {
+      title
+      videoId
+      description
+      teacher {
+        avatarURL
+        bio
+        name
+      }
+    }
+  }
+`;
+
+interface GetLessonBySlugResponse {
+  lesson: {
+    title: string;
+    videoId: string;
+    description: string;
+    teacher: {
+      bio: string;
+      avatarURL: string;
+      name: string;
+    };
+  };
+}
+
+interface VideoPrpos {
+  lessonSlug: string;
+}
+
+export function VideoPlayer(props: VideoPrpos) {
+  const { data } = useQuery<GetLessonBySlugResponse>(GET_LESSON_BY_SLUG_QUERY, {
+    variables: {
+      slug: props.lessonSlug,
+    },
+  });
+
+  if (!data) {
+    return (
+      <div className="flex-1">
+        <p>Carregando</p>
+      </div>
+    );
+  }
   return (
     <div className="flex-1">
       <div className="bg-black flex justify-center">
         <div className="h-full w-full max-w-[1100px] max-h-[60vh] aspect-video">
           <Player>
-            <Video>
-              <source
-                data-src="https://media.vimejs.com/720p.mp4"
-                type="video/mp4"
-              />
-            </Video>
+            <Youtube videoId={data.lesson.videoId} />
             <DefaultUi />
           </Player>
         </div>
@@ -28,26 +69,23 @@ export function VideoPlayer() {
       <div className="p-8 max-w-[1100px] mx-auto">
         <div className="flex items-start gap-16">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold">Aula 1 - Inalgural</h1>
+            <h1 className="text-2xl font-bold">{data.lesson.title}</h1>
             <p className="mt-4 text-gray-200 leading-relaxed">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit.
-              Recusandae, in ipsum iure sequi praesentium ullam culpa fugit
-              voluptates hic perspiciatis error? Totam nam quaerat voluptates
-              nobis labore maiores est maxime?
+              {data.lesson.description}
             </p>
 
             <div className="flex items-center gap-4 mt-6">
               <img
                 className="h-16 w-16 rounded-full border-blue-500"
-                src="https://github.com/Augusto9237.png"
+                src={data.lesson.teacher.avatarURL}
                 alt=""
               />
               <div className="leading-relaxed">
                 <strong className="font-bold text-2xl block">
-                  Augusto Sousa
+                  {data.lesson.teacher.name}
                 </strong>
                 <span className="text-gray-200 text-sm block">
-                  Lorem ipsum dolor sit
+                  {data.lesson.teacher.bio}
                 </span>
               </div>
             </div>
@@ -72,42 +110,45 @@ export function VideoPlayer() {
           </div>
         </div>
 
-        <div className="gap-8 mt-20 grid grid-cols-2 ">
-          <a
-            href=""
-            className="bg-gray-700 rounded overflow-hidden flex items-stretch gap-6 hover:bg-gray-600 transition-colors"
-          >
-            <div className="bg-green-700 h-full p-6 flex items-center">
-              <FileArrowDown size={40} />
-            </div>
-            <div className="py-6 leading-relaxed">
-              <strong className="text-2xl">Material Complementar</strong>
-              <p className="text-sm text-gray-200 mt-2">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quidem
-              </p>
-            </div>
-            <div className="h-full p-6 flex items-center">
-              <CaretRight size={24} />
-            </div>
-          </a>
-        </div>
+        <div className="flex">
+          <div className="gap-8 mt-20 grid grid-cols-1">
+            <a
+              href=""
+              className="bg-gray-700 rounded overflow-hidden flex items-stretch gap-6 ml-4 hover:bg-gray-600 transition-colors"
+            >
+              <div className="bg-green-700 h-full p-6 flex items-center">
+                <FileArrowDown size={40} />
+              </div>
+              <div className="py-6 leading-relaxed">
+                <strong className="text-2xl">Material Complementar</strong>
+                <p className="text-sm text-gray-200 mt-2">
+                  Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                  Quidem
+                </p>
+              </div>
+              <div className="h-full p-6 flex items-center">
+                <CaretRight size={24} />
+              </div>
+            </a>
+          </div>
 
-        <div className="gap-8 mt-20 grid grid-cols-2">
-          <a
-            href=""
-            className="bg-gray-700 rounded overflow-hidden flex items-stretch gap-6 hover:bg-gray-600 transition-colors"
-          >
-            <div className="bg-green-700 h-full p-6 flex items-center">
-              <FileArrowDown size={40} />
-            </div>
-            <div className="py-6 leading-relaxed">
-              <strong className="text-2xl ">Wallpapers exclusivos</strong>
-              <p className="text-sm text-gray-200 mt-2"></p>
-            </div>
-            <div className="h-full p-6 flex items-center">
-              <CaretRight size={24} />
-            </div>
-          </a>
+          <div className="gap-8 mt-20 grid">
+            <a
+              href=""
+              className="bg-gray-700 rounded overflow-hidden flex items-stretch gap-6 hover:bg-gray-600 transition-colors"
+            >
+              <div className="bg-green-700 h-full p-6 flex items-center">
+                <FileArrowDown size={40} />
+              </div>
+              <div className="py-6 leading-relaxed">
+                <strong className="text-2xl ">Wallpapers exclusivos</strong>
+                <p className="text-sm text-gray-200 mt-2"></p>
+              </div>
+              <div className="h-full p-6 flex items-center">
+                <CaretRight size={24} />
+              </div>
+            </a>
+          </div>
         </div>
       </div>
     </div>
